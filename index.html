@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="uz">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Azilena — Cafe & Bakery Menu</title>
+    <meta name="description" content="Azilena Cafe & Bakery — QR menu. Tez, qulay, ko'p tilida." />
+    <meta name="theme-color" content="#F7F4EF" />
+    <link rel="icon" type="image/png" href="images/logo.png" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+
+    <!-- ── Header ── -->
+    <header class="header">
+      <div class="container header__inner">
+
+        <div class="brand">
+          <div class="brand__logo-wrap">
+            <img src="images/logo.png" alt="Azilena logotipi" class="brand__logo-img" />
+          </div>
+          <div class="brand__text">
+            <h1 class="brand__title">Azilena</h1>
+            <p class="brand__subtitle">Cafe &amp; Bakery</p>
+          </div>
+        </div>
+
+        <div class="header__actions">
+          <div class="lang-wrap">
+            <span id="langUiLabel" class="lang-label" aria-hidden="true">Til</span>
+            <label class="sr-only" for="langSelect">Tilni tanlash</label>
+            <select id="langSelect" class="lang">
+              <option value="uz">UZ</option>
+              <option value="ru">RU</option>
+            </select>
+          </div>
+          <a id="cta" class="cta" href="#menu">Menuga o'tish</a>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- ── Hero ── -->
+    <section class="hero" aria-label="Xush kelibsiz">
+      <h2 class="hero__title">Bizning <em>menyumiz</em></h2>
+      <p class="hero__sub">Barcha mahsulotlar yangi va sifatli ingredientlardan tayyorlanadi</p>
+    </section>
+
+    <!-- ── Main ── -->
+    <main class="container main" id="menu">
+
+      <!-- Controls -->
+      <section class="controls" aria-label="Qidiruv va filtrlash">
+        <div>
+          <label id="searchLabel" class="label" for="search">Qidirish</label>
+          <input
+            id="search"
+            class="input"
+            type="search"
+            placeholder="Masalan: salat, shirinlik…"
+            autocomplete="off"
+            spellcheck="false"
+          />
+        </div>
+        <div>
+          <span id="categoryLabel" class="label">Kategoriya</span>
+          <div id="filters" class="filters" role="tablist" aria-label="Kategoriyalar"></div>
+        </div>
+      </section>
+
+      <!-- Grid -->
+      <div id="grid" class="grid" aria-live="polite" aria-label="Menu mahsulotlari"></div>
+      <div id="empty" class="empty hidden" role="status">Hech narsa topilmadi.</div>
+
+    </main>
+
+    <!-- ── Footer ── -->
+    <footer class="footer">
+      <div class="container footer__inner">
+        <div class="footer__brand">
+          <strong>Azilena</strong>
+          <span class="footer__copy">© <span id="year"></span></span>
+        </div>
+        <nav class="footer__links" aria-label="Aloqa havolalari">
+          <a id="callLink" class="link" href="tel:+998901234567">Qo'ng'iroq</a>
+          <a class="link" href="https://t.me/username" target="_blank" rel="noreferrer noopener">Telegram</a>
+          <a class="link" href="https://instagram.com/username" target="_blank" rel="noreferrer noopener">Instagram</a>
+        </nav>
+      </div>
+    </footer>
+
+    <!-- ══════════════════════════════════════════
+         MODAL
+         backdrop div = overlay + flex-center
+         modal div    = karta (dialog emas — CSS animatsiya uchun)
+    ══════════════════════════════════════════ -->
+    <div
+      id="modalBackdrop"
+      class="modal-backdrop hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Mahsulot tafsilotlari"
+    >
+      <div id="modal" class="modal">
+
+        <button id="closeModal" class="icon-btn" aria-label="Yopish" type="button">✕</button>
+
+        <div class="modal__scroll">
+          <div class="modal__content">
+
+            <div class="modal__img-wrap">
+              <img id="modalImg" class="modal__img" alt="" />
+            </div>
+
+            <div class="modal__info">
+              <div class="modal__top">
+                <h2 id="modalTitle" class="modal__title"></h2>
+                <div id="modalPrice" class="modal__price"></div>
+              </div>
+              <p id="modalDesc" class="modal__desc"></p>
+              <div class="modal__actions">
+                <button id="copyBtn" class="btn" type="button">Linkni nusxa olish</button>
+              </div>
+              <p id="copyHint" class="hint hidden" aria-live="polite"></p>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
