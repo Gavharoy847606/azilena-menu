@@ -1,77 +1,97 @@
-/* ============================================================
-   Azilena QR Menu — script.js
-   Tuzatishlar:
-   1. modal backdrop CSS klassi bilan boshqariladi (is-open)
-   2. dialog.showModal() o'rniga oddiy div modal — backdrop ichida
-   3. body scroll lock/unlock
-   4. card desc ko'rsatiladi
-   5. Yangi kategoriya: ichimliklar
-   6. Yangi mahsulotlar: cappuccino, latte, lemon-tea, cheesecake
-   7. escapeHtml barcha joyda to'g'ri ishlatiladi
-   8. hashchange + deep link ishlaydi
-   ============================================================ */
+// Azilena QR Menu — Static (HTML/CSS/JS only)
 
-// ─── i18n ──────────────────────────────────────────────────
+// --- i18n ---
 const I18N = {
   uz: {
-    langLabel:          "Til",
-    cta:                "Menuga o'tish",
-    searchLabel:        "Qidirish",
-    searchPlaceholder:  "Masalan: salat, shirinlik, kapuchino…",
-    categoryLabel:      "Kategoriya",
-    empty:              "Hech narsa topilmadi. Qidiruv yoki filtrni o'zgartirib ko'ring.",
-    all:                "Barchasi",
-    cat_salads:         "Salatlar",
-    cat_desserts:       "Shirinliklar",
-    cat_drinks:         "Ichimliklar",
-    priceSuffix:        "so'm",
-    modalAria:          "Mahsulot tafsilotlari",
-    ingredientsTitle:   "Tarkibi",
-    copy:               "Linkni nusxa olish",
-    copied:             "Nusxa olindi ✅",
-    call:               "Qo'ng'iroq",
-    close:              "Yopish",
+    langName: "O‘zbekcha",
+    langLabel: "Til",
+    cta: "Menuga o‘tish",
+    searchLabel: "Qidirish",
+    searchPlaceholder: "Masalan: salat, shirinlik…",
+    categoryLabel: "Kategoriya",
+    empty: "Hech narsa topilmadi. Qidiruv yoki filtrni o‘zgartirib ko‘ring.",
+    all: "Barchasi",
+    cat_salads: "Salatlar",
+    cat_desserts: "Shirinliklar",
+    priceSuffix: "so‘m",
+    modalAria: "Mahsulot tafsilotlari",
+    ingredientsTitle: "Tarkibi",
+    order: "Buyurtma",
+    orderText: (name, price) => `Salom! ${name} (${price}) buyurtma qilmoqchiman.`,
+    copy: "Linkni nusxa olish",
+    copied: "Nusxa olindi ✅",
+    call: "Qo‘ng‘iroq",
   },
   ru: {
-    langLabel:          "Язык",
-    cta:                "Открыть меню",
-    searchLabel:        "Поиск",
-    searchPlaceholder:  "Например: салат, десерт, капучино…",
-    categoryLabel:      "Категория",
-    empty:              "Ничего не найдено. Измените поиск или фильтр.",
-    all:                "Все",
-    cat_salads:         "Салаты",
-    cat_desserts:       "Десерты",
-    cat_drinks:         "Напитки",
-    priceSuffix:        "сум",
-    modalAria:          "Детали блюда",
-    ingredientsTitle:   "Состав",
-    copy:               "Скопировать ссылку",
-    copied:             "Скопировано ✅",
-    call:               "Позвонить",
-    close:              "Закрыть",
+    langName: "Русский",
+    langLabel: "Язык",
+    cta: "Открыть меню",
+    searchLabel: "Поиск",
+    searchPlaceholder: "Например: салат, десерт…",
+    categoryLabel: "Категория",
+    empty: "Ничего не найдено. Измените поиск или фильтр.",
+    all: "Все",
+    cat_salads: "Салаты",
+    cat_desserts: "Десерты",
+    priceSuffix: "сум",
+    modalAria: "Детали блюда",
+    ingredientsTitle: "Состав",
+    order: "Заказать",
+    orderText: (name, price) => `Здравствуйте! Хочу заказать: ${name} (${price}).`,
+    copy: "Скопировать ссылку",
+    copied: "Скопировано ✅",
+    call: "Позвонить",
+  },
+  en: {
+    langName: "English",
+    langLabel: "Language",
+    cta: "Open menu",
+    searchLabel: "Search",
+    searchPlaceholder: "E.g.: salad, dessert…",
+    categoryLabel: "Category",
+    empty: "Nothing found. Try changing the search or filters.",
+    all: "All",
+    cat_salads: "Salads",
+    cat_desserts: "Desserts",
+    priceSuffix: "UZS",
+    modalAria: "Product details",
+    ingredientsTitle: "Ingredients",
+    order: "Order",
+    orderText: (name, price) => `Hello! I would like to order: ${name} (${price}).`,
+    copy: "Copy link",
+    copied: "Copied ✅",
+    call: "Call",
   },
 };
 
-// ─── Kategoriyalar ──────────────────────────────────────────
 const CATEGORIES = [
-  { key: "salads",   labelKey: "cat_salads" },
+  { key: "salads", labelKey: "cat_salads" },
   { key: "desserts", labelKey: "cat_desserts" },
-  { key: "drinks",   labelKey: "cat_drinks" },
 ];
 
-// ─── Mahsulotlar ────────────────────────────────────────────
 const products = [
-  // ── Salatlar ──
+  {
+    id: "pancake",
+    category: "desserts",
+    price: 22000,
+    image: "images/pancake.jpg",
+    name: { uz: "Pankeyk", ru: "Панкейк", en: "Pancake" },
+    ingredients: {
+      uz: "Bug‘doy uni, tuxum, sut, shakar, sariyog‘, qabartma, vanilin. Asal, sirop yoki yangi rezavorlar bilan tortiladi.",
+      ru: "пшеничная мука, яйца, молоко, сахар, сливочное масло, разрыхлитель, ваниль. Подаётся с мёдом, сиропом или свежими ягодами.",
+      en: "Wheat flour, eggs, milk, sugar, butter, baking powder, vanilla. Served with honey, syrup, or fresh berries.",
+    },
+  },
   {
     id: "caesar-salad",
     category: "salads",
     price: 48000,
     image: "images/caesar-salad.jpg",
-    name: { uz: "Salat «Sezar»", ru: "Салат «Цезарь»" },
+    name: { uz: "Salat “Sezar”", ru: "Салат «Цезарь»", en: "Caesar salad" },
     ingredients: {
-      uz: "Grilda pishirilgan tovuq filesi, salat barglari, cherri pomidorlari, suxariklar, parmezan pishlog'i, «Sezar» sousi.",
-      ru: "Куриное филе гриль, листья салата, помидоры черри, сухарики, сыр пармезан, соус «Цезарь».",
+      uz: "Grilda pishirilgan tovuq filesi, salat barglari, cherri pomidorlari, suxariklar, parmezan pishlog‘i, “Sezar” sousi.",
+      ru: "куриное филе гриль, листья салата, помидоры черри, сухарики, сыр пармезан, соус «Цезарь».",
+      en: "Grilled chicken fillet, lettuce, cherry tomatoes, croutons, Parmesan, Caesar dressing.",
     },
   },
   {
@@ -79,10 +99,11 @@ const products = [
     category: "salads",
     price: 42000,
     image: "images/greek-salad.jpg",
-    name: { uz: "Salat «Grekcha»", ru: "Салат «Греческий»" },
+    name: { uz: "Salat “Grekcha”", ru: "Салат «Греческий»", en: "Greek salad" },
     ingredients: {
-      uz: "Yangi pomidor, bodring, bolg'ar qalampiri, qizil piyoz, feta pishlog'i, zaytun, zaytun moyi, ziravorlar.",
-      ru: "Свежие помидоры, огурцы, болгарский перец, красный лук, сыр фета, оливки, оливковое масло, специи.",
+      uz: "Yangi pomidor, bodring, bolg‘ar qalampiri, qizil piyoz, feta pishlog‘i, zaytun, zaytun moyi, ziravorlar.",
+      ru: "свежие помидоры, огурцы, болгарский перец, красный лук, сыр фета, оливки, оливковое масло, специи.",
+      en: "Fresh tomatoes, cucumber, bell pepper, red onion, feta cheese, olives, olive oil, spices.",
     },
   },
   {
@@ -90,33 +111,23 @@ const products = [
     category: "salads",
     price: 39000,
     image: "images/fruit-salad.jpg",
-    name: { uz: "Mevali salat", ru: "Фруктовый салат" },
+    name: { uz: "Mevali salat", ru: "Фруктовый салат", en: "Fruit salad" },
     ingredients: {
       uz: "Qulupnay, banan, kivi, uzum, olma, tabiiy yogurt yoki asal.",
-      ru: "Клубника, банан, киви, виноград, яблоко, натуральный йогурт или мёд.",
+      ru: "клубника, банан, киви, виноград, яблоко, натуральный йогурт или мёд.",
+      en: "Strawberries, banana, kiwi, grapes, apple, natural yogurt or honey.",
     },
   },
   {
     id: "trifle",
-    category: "salads",
+    category: "desserts",
     price: 60000,
     image: "images/trifle.jpg",
-    name: { uz: "Trayfl", ru: "Трайфл" },
+    name: { uz: "Trayfl", ru: "Трайфл", en: "Trifle" },
     ingredients: {
       uz: "Yumshoq biskvit, qaymoqli krem, yangi mevalar (qulupnay, banan, kivi), shokolad uvoqlari.",
-      ru: "Нежный бисквит, сливочный крем, свежие фрукты (клубника, банан, киви), шоколадная крошка.",
-    },
-  },
-  // ── Shirinliklar ──
-  {
-    id: "pancake",
-    category: "desserts",
-    price: 22000,
-    image: "images/pancake.jpg",
-    name: { uz: "Pankeyk", ru: "Панкейк" },
-    ingredients: {
-      uz: "Bug'doy uni, tuxum, sut, shakar, sariyog', qabartma, vanilin. Asal yoki yangi rezavorlar bilan.",
-      ru: "Пшеничная мука, яйца, молоко, сахар, сливочное масло, разрыхлитель, ваниль. С мёдом или ягодами.",
+      ru: "нежный бисквит, сливочный крем, свежие фрукты (клубника, банан, киви), шоколадная крошка.",
+      en: "Soft sponge cake, creamy custard, fresh fruits (strawberry, banana, kiwi), chocolate shavings.",
     },
   },
   {
@@ -124,10 +135,11 @@ const products = [
     category: "desserts",
     price: 26000,
     image: "images/medovik.jpg",
-    name: { uz: "Medovik", ru: "Медовик" },
+    name: { uz: "Medovik", ru: "Медовик", en: "Honey cake (Medovik)" },
     ingredients: {
       uz: "Asalli korjlar, smetana kremi, tabiiy asal.",
-      ru: "Медовые коржи, сметанный крем, натуральный мёд.",
+      ru: "медовые коржи, сметанный крем, натуральный мёд.",
+      en: "Honey layers, sour-cream frosting, natural honey.",
     },
   },
   {
@@ -135,10 +147,11 @@ const products = [
     category: "desserts",
     price: 27000,
     image: "images/napoleon.jpg",
-    name: { uz: "Napoleon", ru: "Наполеон" },
+    name: { uz: "Napoleon", ru: "Наполеон", en: "Napoleon cake" },
     ingredients: {
       uz: "Qatlamli xamir, zavarnoy krem, shakar upasi.",
-      ru: "Слоёное тесто, заварной крем, сахарная пудра.",
+      ru: "слоёное тесто, заварной крем, сахарная пудра.",
+      en: "Puff pastry layers, custard cream, powdered sugar.",
     },
   },
   {
@@ -146,237 +159,198 @@ const products = [
     category: "desserts",
     price: 18000,
     image: "images/muffin.jpg",
-    name: { uz: "Maffin", ru: "Маффин" },
+    name: { uz: "Maffin", ru: "Маффин", en: "Muffin" },
     ingredients: {
-      uz: "Bug'doy uni, tuxum, shakar, yog', qabartma, shokolad tomchilari yoki yangi rezavorlar.",
-      ru: "Пшеничная мука, яйца, сахар, масло, разрыхлитель, шоколадные капли или свежие ягоды.",
-    },
-  },
-  {
-    id: "cheesecake",
-    category: "desserts",
-    price: 32000,
-    image: "images/cheesecake.jpg",
-    name: { uz: "Chizkeyk", ru: "Чизкейк" },
-    ingredients: {
-      uz: "Krem-pishloq, pechenye korji, shakar, tuxum, vanilin. Gilos sousi bilan tortiladi.",
-      ru: "Сливочный сыр, основа из печенья, сахар, яйца, ваниль. Подаётся с вишнёвым соусом.",
-    },
-  },
-  // ── Ichimliklar ──
-  {
-    id: "cappuccino",
-    category: "drinks",
-    price: 24000,
-    image: "images/cappuccino.jpg",
-    name: { uz: "Kapuchino", ru: "Капучино" },
-    ingredients: {
-      uz: "Espresso, bug'langan sut, sut ko'pigi. Klassik italyan qahvasi.",
-      ru: "Эспрессо, вспененное молоко, молочная пенка. Классический итальянский кофе.",
-    },
-  },
-  {
-    id: "latte",
-    category: "drinks",
-    price: 26000,
-    image: "images/latte.jpg",
-    name: { uz: "Latte", ru: "Латте" },
-    ingredients: {
-      uz: "Espresso, ko'p miqdorda bug'langan sut, ozgina sut ko'pigi. Yumshoq va mayin ta'm.",
-      ru: "Эспрессо, большое количество вспененного молока, немного пенки. Мягкий и нежный вкус.",
-    },
-  },
-  {
-    id: "lemon-tea",
-    category: "drinks",
-    price: 16000,
-    image: "images/lemon-tea.jpg",
-    name: { uz: "Limonli choy", ru: "Чай с лимоном" },
-    ingredients: {
-      uz: "Sifatli qora choy, yangi limon, yalpiz bargi. Issiq yoki muzli holatda beriladi.",
-      ru: "Качественный чёрный чай, свежий лимон, листья мяты. Подаётся горячим или холодным.",
+      uz: "Bug‘doy uni, tuxum, shakar, yog‘, qabartma, shokolad tomchilari yoki yangi rezavorlar (qulupnay, chernika, malina).",
+      ru: "пшеничная мука, яйца, сахар, масло, разрыхлитель, шоколадные капли или свежие ягоды (клубника, черника, малина).",
+      en: "Wheat flour, eggs, sugar, butter/oil, baking powder, chocolate chips or fresh berries (strawberry, blueberry, raspberry).",
     },
   },
 ];
 
-// ─── DOM Refs ───────────────────────────────────────────────
-const gridEl        = document.getElementById("grid");
-const emptyEl       = document.getElementById("empty");
-const filtersEl     = document.getElementById("filters");
-const searchEl      = document.getElementById("search");
-const yearEl        = document.getElementById("year");
-const langSelect    = document.getElementById("langSelect");
-const ctaEl         = document.getElementById("cta");
-const searchLabel   = document.getElementById("searchLabel");
+// --- DOM ---
+const grid = document.getElementById("grid");
+const empty = document.getElementById("empty");
+const filtersEl = document.getElementById("filters");
+const searchEl = document.getElementById("search");
+const yearEl = document.getElementById("year");
+
+const langSelect = document.getElementById("langSelect");
+const ctaEl = document.getElementById("cta");
+const searchLabel = document.getElementById("searchLabel");
 const categoryLabel = document.getElementById("categoryLabel");
-const callLink      = document.getElementById("callLink");
-const langUiLabel   = document.getElementById("langUiLabel");
+const callLink = document.getElementById("callLink");
+const langUiLabel = document.getElementById("langUiLabel");
 
-const backdropEl    = document.getElementById("modalBackdrop");
-const modalEl       = document.getElementById("modal");
+const modal = document.getElementById("modal");
+const modalBackdrop = document.getElementById("modalBackdrop");
 const closeModalBtn = document.getElementById("closeModal");
-const modalImg      = document.getElementById("modalImg");
-const modalTitle    = document.getElementById("modalTitle");
-const modalPrice    = document.getElementById("modalPrice");
-const modalDesc     = document.getElementById("modalDesc");
-const copyBtn       = document.getElementById("copyBtn");
-const copyHint      = document.getElementById("copyHint");
+const modalImg = document.getElementById("modalImg");
+const modalTitle = document.getElementById("modalTitle");
+const modalPrice = document.getElementById("modalPrice");
+const modalDesc = document.getElementById("modalDesc");
+const copyBtn = document.getElementById("copyBtn");
+const copyHint = document.getElementById("copyHint");
 
-// ─── State ──────────────────────────────────────────────────
+yearEl.textContent = new Date().getFullYear().toString();
+
 const state = {
-  q:        "",
+  q: "",
   category: "all",
-  lang:     getInitialLang(),
+  lang: getInitialLang(),
 };
 
-// ─── Helpers ────────────────────────────────────────────────
 function getInitialLang() {
   const saved = localStorage.getItem("azilena_lang");
-  if (saved === "uz" || saved === "ru") return saved;
+  if (saved === "uz" || saved === "ru" || saved === "en") return saved;
+
+  const htmlLang = (document.documentElement.lang || "").toLowerCase();
+  if (htmlLang.startsWith("ru")) return "ru";
+  if (htmlLang.startsWith("en")) return "en";
   return "uz";
 }
 
 function t(key) {
-  return (I18N[state.lang] ?? I18N.uz)[key] ?? (I18N.uz)[key] ?? key;
+  const dict = I18N[state.lang] || I18N.uz;
+  return dict[key] ?? I18N.uz[key] ?? key;
 }
 
 function formatPrice(sum) {
+  // 25000 -> "25 000 so'm" / "25 000 сум"
   const s = String(sum);
   let out = "";
   for (let i = 0; i < s.length; i++) {
-    const fromEnd = s.length - i;
+    const idxFromEnd = s.length - i;
     out += s[i];
-    if (fromEnd > 1 && fromEnd % 3 === 1) out += "\u202F"; // narrow no-break space
+    if (idxFromEnd > 1 && idxFromEnd % 3 === 1) out += " ";
   }
   return `${out} ${t("priceSuffix")}`;
 }
 
-function esc(str) {
+function escapeHtml(str) {
   return String(str)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
 function productName(p) {
-  return p.name?.[state.lang] || p.name?.uz || "";
+  return p.name?.[state.lang] || p.name?.uz || p.name?.ru || p.name?.en || "";
 }
 
 function productIngredients(p) {
-  return p.ingredients?.[state.lang] || p.ingredients?.uz || "";
+  return p.ingredients?.[state.lang] || p.ingredients?.uz || p.ingredients?.ru || p.ingredients?.en || "";
 }
 
-// ─── Static UI translations ─────────────────────────────────
-function applyLangUI() {
+function applyLanguageToStaticUI() {
   document.documentElement.lang = state.lang;
-  if (langSelect)    langSelect.value    = state.lang;
-  if (ctaEl)         ctaEl.textContent   = t("cta");
-  if (searchLabel)   searchLabel.textContent  = t("searchLabel");
-  if (searchEl)      searchEl.placeholder     = t("searchPlaceholder");
+  if (langSelect) langSelect.value = state.lang;
+
+  if (ctaEl) ctaEl.textContent = t("cta");
+  if (searchLabel) searchLabel.textContent = t("searchLabel");
+  if (searchEl) searchEl.placeholder = t("searchPlaceholder");
   if (categoryLabel) categoryLabel.textContent = t("categoryLabel");
-  if (langUiLabel)   langUiLabel.textContent  = t("langLabel");
-  if (emptyEl)       emptyEl.textContent      = t("empty");
-  if (callLink)      callLink.textContent      = t("call");
-  if (copyBtn)       copyBtn.textContent       = t("copy");
-  if (closeModalBtn) closeModalBtn.setAttribute("aria-label", t("close"));
-  if (modalEl)       modalEl.setAttribute("aria-label", t("modalAria"));
+  if (langUiLabel) langUiLabel.textContent = t("langLabel");
+  if (empty) empty.textContent = t("empty");
+  if (callLink) callLink.textContent = t("call");
+  if (copyBtn) copyBtn.textContent = t("copy");
+  if (copyHint) copyHint.textContent = t("copied");
+
+  // Modal aria label
+  if (modal) modal.setAttribute("aria-label", t("modalAria"));
 }
 
-// ─── Filters ────────────────────────────────────────────────
 function renderFilters() {
   filtersEl.innerHTML = "";
-  const cats = [
-    { key: "all", label: t("all") },
-    ...CATEGORIES.map(c => ({ key: c.key, label: t(c.labelKey) })),
-  ];
+  const cats = [{ key: "all", label: t("all") }, ...CATEGORIES.map((c) => ({ key: c.key, label: t(c.labelKey) }))];
 
-  cats.forEach(c => {
+  cats.forEach((c) => {
     const btn = document.createElement("button");
-    btn.type      = "button";
+    btn.type = "button";
     btn.className = "filter-btn";
     btn.textContent = c.label;
     btn.setAttribute("role", "tab");
     btn.setAttribute("aria-selected", String(state.category === c.key));
-
     btn.addEventListener("click", () => {
       state.category = c.key;
-      filtersEl.querySelectorAll(".filter-btn").forEach(b =>
+      [...filtersEl.querySelectorAll(".filter-btn")].forEach((b) =>
         b.setAttribute("aria-selected", String(b === btn))
       );
       render();
     });
-
     filtersEl.appendChild(btn);
   });
 }
 
-// ─── Filter logic ───────────────────────────────────────────
 function filteredProducts() {
   const q = state.q.trim().toLowerCase();
-  return products.filter(p => {
-    if (state.category !== "all" && p.category !== state.category) return false;
+  return products.filter((p) => {
+    const byCat = state.category === "all" ? true : p.category === state.category;
+    if (!byCat) return false;
     if (!q) return true;
-    const hay = [p.name?.uz, p.name?.ru, p.ingredients?.uz, p.ingredients?.ru]
-      .filter(Boolean).join(" ").toLowerCase();
+
+    const hay = [
+      p.name?.uz,
+      p.name?.ru,
+      p.name?.en,
+      p.ingredients?.uz,
+      p.ingredients?.ru,
+      p.ingredients?.en,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+
     return hay.includes(q);
   });
 }
 
-// ─── Card template ──────────────────────────────────────────
 function cardTemplate(p) {
   const name = productName(p);
-  const ing  = productIngredients(p);
+  const div = document.createElement("article");
+  div.className = "card";
+  div.setAttribute("tabindex", "0");
+  div.setAttribute("role", "button");
+  div.setAttribute("aria-label", `${name}`);
 
-  const article = document.createElement("article");
-  article.className = "card";
-  article.setAttribute("tabindex", "0");
-  article.setAttribute("role", "button");
-  article.setAttribute("aria-label", name);
-
-  article.innerHTML = `
-    <div class="card__img-wrap">
-      <img class="card__img"
-           src="${esc(p.image)}"
-           alt="${esc(name)}"
-           loading="lazy"
-           decoding="async" />
-    </div>
+  div.innerHTML = `
+    <img class="card__img" src="${p.image}" alt="${escapeHtml(name)}" loading="lazy" />
     <div class="card__body">
       <div class="card__top">
-        <h3 class="card__title">${esc(name)}</h3>
+        <h3 class="card__title">${escapeHtml(name)}</h3>
         <div class="price">${formatPrice(p.price)}</div>
       </div>
-      <p class="card__desc">${esc(ing)}</p>
+      
     </div>
   `;
 
   const open = () => openModal(p);
-  article.addEventListener("click", open);
-  article.addEventListener("keydown", e => {
-    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); }
+  div.addEventListener("click", open);
+  div.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      open();
+    }
   });
 
-  return article;
+  return div;
 }
 
-// ─── Render grid ────────────────────────────────────────────
 function render() {
   const items = filteredProducts();
-  gridEl.innerHTML = "";
+  grid.innerHTML = "";
 
   if (items.length === 0) {
-    emptyEl.classList.remove("hidden");
+    empty.classList.remove("hidden");
     return;
   }
-  emptyEl.classList.add("hidden");
-  const frag = document.createDocumentFragment();
-  items.forEach(p => frag.appendChild(cardTemplate(p)));
-  gridEl.appendChild(frag);
+
+  empty.classList.add("hidden");
+  items.forEach((p) => grid.appendChild(cardTemplate(p)));
 }
 
-// ─── Deep-link helpers ──────────────────────────────────────
 function buildShareUrl(pId) {
   const url = new URL(window.location.href);
   url.hash = `#${pId}`;
@@ -384,132 +358,96 @@ function buildShareUrl(pId) {
   return url.toString();
 }
 
-function findProductByHash() {
-  const id = window.location.hash.replace("#", "").trim();
-  return id ? products.find(p => p.id === id) ?? null : null;
-}
-
-// ─── Modal open / close ─────────────────────────────────────
 function openModal(p) {
   const name = productName(p);
-  const ing  = productIngredients(p);
+  const ing = productIngredients(p);
 
-  modalImg.src         = p.image;
-  modalImg.alt         = name;
+  modalImg.src = p.image;
+  modalImg.alt = name;
   modalTitle.textContent = name;
   modalPrice.textContent = formatPrice(p.price);
-  modalDesc.textContent  = `${t("ingredientsTitle")}: ${ing}`;
-  copyHint.classList.add("hidden");
+  modalDesc.textContent = `${t("ingredientsTitle")}: ${ing}`;
 
+  // deep link
   history.replaceState(null, "", buildShareUrl(p.id));
 
-  // CSS animatsiya uchun is-open klassi
-  backdropEl.classList.remove("hidden");
-  // Bir frame kutib, keyin animatsiya klassi — CSS transition ishlaydi
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      backdropEl.classList.add("is-open");
-    });
-  });
-
-  document.body.style.overflow = "hidden";
-  // Fokusni modal yopish tugmasiga o'tkazamiz
-  setTimeout(() => closeModalBtn.focus(), 320);
+  copyHint.classList.add("hidden");
+  modalBackdrop.classList.remove("hidden");
+  if (typeof modal.showModal === "function") modal.showModal();
+  else modal.classList.remove("hidden");
 }
 
 function closeModal() {
-  backdropEl.classList.remove("is-open");
-  // Animatsiya tugagach hidden qo'yamiz
-  backdropEl.addEventListener("transitionend", function handler() {
-    backdropEl.classList.add("hidden");
-    backdropEl.removeEventListener("transitionend", handler);
-  });
-  document.body.style.overflow = "";
+  modalBackdrop.classList.add("hidden");
   copyHint.classList.add("hidden");
+  if (typeof modal.close === "function") modal.close();
+  else modal.classList.add("hidden");
 }
 
-// ─── Events ─────────────────────────────────────────────────
+function findProductByHash() {
+  const id = (window.location.hash || "").replace("#", "").trim();
+  if (!id) return null;
+  return products.find((p) => p.id === id) || null;
+}
 
-// Yopish tugmasi
+function applyLangFromUrl() {
+  const url = new URL(window.location.href);
+  const l = url.searchParams.get("lang");
+  if (l === "uz" || l === "ru" || l === "en") {
+    state.lang = l;
+    localStorage.setItem("azilena_lang", l);
+  }
+}
+
+// --- Events ---
 closeModalBtn.addEventListener("click", closeModal);
+modalBackdrop.addEventListener("click", closeModal);
 
-// Backdrop ustiga bosilsa yopiladi (modal ichiga bosilsa yopilmaydi)
-backdropEl.addEventListener("click", e => {
-  if (e.target === backdropEl) closeModal();
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && modal.open) closeModal();
 });
 
-// Escape
-document.addEventListener("keydown", e => {
-  if (e.key === "Escape" && backdropEl.classList.contains("is-open")) closeModal();
-});
-
-// Qidiruv
-searchEl.addEventListener("input", e => {
+searchEl.addEventListener("input", (e) => {
   state.q = e.target.value;
   render();
 });
 
-// Til o'zgartirish
-langSelect.addEventListener("change", e => {
+langSelect.addEventListener("change", (e) => {
   const next = e.target.value;
-  if (next !== "uz" && next !== "ru") return;
+  if (next !== "uz" && next !== "ru" && next !== "en") return;
   state.lang = next;
   localStorage.setItem("azilena_lang", next);
-  applyLangUI();
+  applyLanguageToStaticUI();
   renderFilters();
   render();
 
-  // Modal ochiq bo'lsa URL yangilanadi
-  const cur = findProductByHash();
-  if (cur && backdropEl.classList.contains("is-open")) {
-    history.replaceState(null, "", buildShareUrl(cur.id));
-    // Modal ichidagi matnlarni ham yangilaymiz
-    const name = productName(cur);
-    const ing  = productIngredients(cur);
-    modalImg.alt           = name;
-    modalTitle.textContent = name;
-    modalPrice.textContent = formatPrice(cur.price);
-    modalDesc.textContent  = `${t("ingredientsTitle")}: ${ing}`;
-  }
+  // update share url if modal is open
+  const current = findProductByHash();
+  if (current && modal.open) history.replaceState(null, "", buildShareUrl(current.id));
 });
 
-// Copy link
 copyBtn.addEventListener("click", async () => {
   try {
-    const cur = findProductByHash();
-    const url = cur ? buildShareUrl(cur.id) : window.location.href;
+    const current = findProductByHash();
+    const url = current ? buildShareUrl(current.id) : window.location.href;
     await navigator.clipboard.writeText(url);
-    copyBtn.textContent = t("copied");
-    setTimeout(() => {
-      copyBtn.textContent = t("copy");
-    }, 1800);
+    copyHint.classList.remove("hidden");
+    setTimeout(() => copyHint.classList.add("hidden"), 1200);
   } catch {
-    // Clipboard permission denied — silently ignore
+    // clipboard permission denied — ignore
   }
 });
 
-// Hash change (browser orqaga/oldinga bosish)
 window.addEventListener("hashchange", () => {
   const p = findProductByHash();
   if (p) openModal(p);
 });
 
-// ─── Init ───────────────────────────────────────────────────
-function applyLangFromUrl() {
-  const urlLang = new URL(window.location.href).searchParams.get("lang");
-  if (urlLang === "uz" || urlLang === "ru") {
-    state.lang = urlLang;
-    localStorage.setItem("azilena_lang", urlLang);
-  }
-}
-
-if (yearEl) yearEl.textContent = new Date().getFullYear();
-
+// --- init ---
 applyLangFromUrl();
-applyLangUI();
+applyLanguageToStaticUI();
 renderFilters();
 render();
 
-// Deep-link: URL da hash bo'lsa modal ochiladi
-const initProduct = findProductByHash();
-if (initProduct) openModal(initProduct);
+const openFromHash = findProductByHash();
+if (openFromHash) openModal(openFromHash);
